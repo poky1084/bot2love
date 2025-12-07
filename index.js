@@ -1626,8 +1626,9 @@ function changegame(gamer) {
 		 document.querySelector('.bet-info-label3').style.display = 'none';
 		 document.querySelector('.blackjack-bet-info').style.display = 'none';
 		 
-		
+		game = 'blackjack';
 		}
+		game = gamer;
 		
 	}
 	
