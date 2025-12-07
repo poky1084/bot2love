@@ -1045,6 +1045,7 @@ ${firstTheme}
             <button class="status-btn" id="resetSeedBtn">/resetseed</button>
             <button class="status-btn" id="resetStatsBtn">/resetstats</button>
 			<button class="status-btn" id="themeBtn">/theme</button>
+			<button class="status-btn" id="botSaveScriptButton">/save</button>
         </div>
         <div class="status-indicator">
             <div class="status-dot"></div>
@@ -1236,7 +1237,26 @@ const minimizedHeader = document.getElementById('minimizedHeader');
 const headerRestoreBtn = document.getElementById('headerRestoreBtn');
 const headerBetCount = document.getElementById('header-bet-count');
 const headerProfitStatus = document.getElementById('header-profit-status');
+var downloadBtn = document.getElementById("botSaveScriptButton");
+downloadBtn.addEventListener('click', function() { promptSave(); }, false);
 
+function promptSave() {
+	let text = htmlEditor2.getValue();
+	
+  const defaultFilename = "myFile.txt";
+
+  const filename = prompt("Enter file name:", defaultFilename);
+  if (!filename) return; // user cancelled
+
+  const blob = new Blob([text], { type: "text/plain" });
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+}
 // Console elements
 const consoleInput = document.getElementById('consoleInput');
 //const inputCursor = document.getElementById('inputCursor');
