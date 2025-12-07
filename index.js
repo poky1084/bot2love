@@ -943,7 +943,7 @@ ${firstTheme}
 <div class="window-container" id="terminalWindow">
     <div class="window-tabs" id="windowTabs">
         <div class="tabs-container">
-            <div class="tab active" data-tab="console">Status</div>
+            <div class="tab active" data-tab="console">UI</div>
             <div class="tab" data-tab="log" id="logTabClick">Console</div>
             <div class="tab" data-tab="code">Code</div>
             <div class="tab" data-tab="stat">Stats</div>
@@ -1506,7 +1506,15 @@ Chart points: ${dps.length}`;
 	 'game': (gamer = 'dice') => {
         const currentgame = gamer || 'dice';
 		changegame(currentgame)
-		return ''
+		log(`Games command:
+game dice |
+game limbo |
+game hilo |
+game keno |
+game mines |
+game blackjack |
+game baccarat`)
+		return '';
     }
 };
 
