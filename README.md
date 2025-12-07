@@ -1,2 +1,2 @@
 # bot2love
-stake love - its a browser extension
+- its a browser extension
