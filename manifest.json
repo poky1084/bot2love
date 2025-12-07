@@ -1,0 +1,33 @@
+{
+  "name": "@morpheus",
+  "manifest_version": 3,
+  "version": "1.3.3.7",
+  "icons": {
+        "128": "morpheus.png"
+    },
+  "permissions": ["webNavigation", "scripting", "tabs", "activeTab"],
+  "host_permissions": ["https://stake.bet/*", "https://stake.com/*", "https://stake.pet/*", "https://stake.kim/*", "https://stake.us/*", "https://stake.games/*", "https://stake.mba/*", "https://stake.ac/*", "https://stake.jp/*", "https://stake.bz/*", "https://stake.krd/*", "https://stake.ceo/*", "https://staketr.com/*", "https://primedice.com/*", "https://primedice.games/*", "https://stake1021.com/*", "https://stake1067.com/*"],
+
+  "background": {
+    "service_worker": "background.js"
+  },
+
+  "action": {
+    "default_title": "@morpheus"
+  },
+	"web_accessible_resources": [
+	{
+	  "resources": [
+      "index.js",
+      "inject.js",
+      "lib/*.js",
+	  "img/*"
+    ],
+	  "matches": [ "<all_urls>" ]
+	}
+	],
+	
+	"content_security_policy": {
+		"extension_pages": "script-src 'self'; object-src 'self';"
+  }
+}
