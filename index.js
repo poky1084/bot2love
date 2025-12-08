@@ -1214,7 +1214,7 @@ var id = {}
 var betidentifier = "identity01"
 var betlist = []
 var finished_round = false
-var mirror = "stake1067.com"
+var mirror = window.location.host
 
 
 
