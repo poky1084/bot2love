@@ -3005,7 +3005,7 @@ function data(json){
 		
 		if (json && !json.data) {
 		if (gameType === "blackjackBet"){
-			
+			resetBlackjackGame()
 			//running = false
 			updateBlackjackUI(json);
             if (bet.active) {
@@ -9072,6 +9072,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Also call createBaccaratSection when your bot initializes
 setTimeout(createBaccaratSection, 100);
+// Add Blackjack CSS styles after the baccaratStyles
+// Add Blackjack CSS styles after the baccaratStyles
+
+let blackjackGameActive = false;
+let blackjackBetAmount = 0;
+let currentBlackjackResponse = null;
+let currentHandIndex = 0;
+let previousDealerCards = [];
+let previousPlayerHands = [];
 
 // Add Blackjack CSS styles after the baccaratStyles
 const blackjackStyles = document.createElement('style');
@@ -9576,11 +9585,6 @@ blackjackStyles.textContent = `
 
 document.head.appendChild(blackjackStyles);
 
-// Blackjack Game Variables
-let blackjackGameActive = false;
-let blackjackBetAmount = 0;
-let currentBlackjackResponse = null;
-let currentHandIndex = 0;
 
 // Create Blackjack section
 function createBlackjackSection() {
@@ -9700,8 +9704,9 @@ function resetBlackjackGame() {
     // Reset current hand index
     currentHandIndex = 0;
     
-    // Disable action buttons
-    //disableBlackjackButtons(true);
+    // Reset card tracking
+    previousDealerCards = [];
+    previousPlayerHands = [];
     
     // Stop blinking
     stopBlinking();
@@ -9839,9 +9844,14 @@ function updateDealerHand(dealerHand) {
     
     // Display dealer cards
     dealerHand.cards.forEach((card, index) => {
-        const cardElement = createBlackjackCardElement(card, index);
+        // Check if this is a new card by comparing with previous state
+        const isNewCard = index >= previousDealerCards.length;
+        const cardElement = createBlackjackCardElement(card, index, isNewCard);
         dealerCardsContainer.appendChild(cardElement);
     });
+    
+    // Update tracking
+    previousDealerCards = [...dealerHand.cards];
     
     // Update value and actions
     dealerValueElement.textContent = `Value: ${dealerHand.value}`;
@@ -9870,9 +9880,14 @@ function updatePlayerHands(playerHands) {
         const cardsContainer = document.createElement('div');
         cardsContainer.className = 'cards-container-blackjack';
         
+        // Get previous hand cards for comparison
+        const previousHand = previousPlayerHands[0] || { cards: [] };
+        
         // Add cards to this hand
         hand.cards.forEach((card, cardIndex) => {
-            const cardElement = createBlackjackCardElement(card, cardIndex);
+            // Check if this is a new card
+            const isNewCard = cardIndex >= previousHand.cards.length;
+            const cardElement = createBlackjackCardElement(card, cardIndex, isNewCard);
             cardsContainer.appendChild(cardElement);
         });
         
@@ -9912,9 +9927,14 @@ function updatePlayerHands(playerHands) {
             const cardsContainer = document.createElement('div');
             cardsContainer.className = 'cards-container-blackjack';
             
+            // Get previous hand cards for comparison
+            const previousHand = previousPlayerHands[index] || { cards: [] };
+            
             // Add cards to this split hand
             hand.cards.forEach((card, cardIndex) => {
-                const cardElement = createBlackjackCardElement(card, cardIndex);
+                // Check if this is a new card
+                const isNewCard = cardIndex >= previousHand.cards.length;
+                const cardElement = createBlackjackCardElement(card, cardIndex, isNewCard);
                 cardsContainer.appendChild(cardElement);
             });
             
@@ -9941,6 +9961,13 @@ function updatePlayerHands(playerHands) {
         
         playerHandsContainer.appendChild(splitContainer);
     }
+    
+    // Update tracking - deep copy to preserve card counts
+    previousPlayerHands = playerHands.map(hand => ({
+        cards: [...hand.cards],
+        value: hand.value,
+        actions: [...hand.actions]
+    }));
 }
 
 function blinkerBtn() {
@@ -10062,9 +10089,14 @@ function showBlackjackResult(betData) {
 }
 
 // Create Blackjack card element
-function createBlackjackCardElement(card, index) {
+function createBlackjackCardElement(card, index, isNewCard = true) {
     const cardElement = document.createElement('div');
-    cardElement.className = 'blackjack-card new';
+    cardElement.className = 'blackjack-card';
+    
+    // Only add animation class if this is a new card
+    if (isNewCard) {
+        cardElement.classList.add('new');
+    }
     
     // Determine color based on suit
     const suit = card.suit || '';
@@ -10084,10 +10116,12 @@ function createBlackjackCardElement(card, index) {
         <div class="card-suit">${suitSymbol}</div>
     `;
     
-    // Remove animation class after animation completes
-    setTimeout(() => {
-        cardElement.classList.remove('new');
-    }, 500);
+    // Remove animation class after animation completes (only if it was added)
+    if (isNewCard) {
+        setTimeout(() => {
+            cardElement.classList.remove('new');
+        }, 500);
+    }
     
     return cardElement;
 }
