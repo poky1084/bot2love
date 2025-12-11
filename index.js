@@ -2744,8 +2744,10 @@ function betRequest({ url, body, retryParams = [], retryDelay = 1000 }) {
 
             if (err.status === 403) {
                 setTimeout(() => {
-                    console.log("error status 403");
-					
+			console.log("error status 403");
+			
+			if (running) {
+				
 			runBet = (fn, args = []) => {
 				if (fastmode) {
 					setTimeout(() => fn(...args), 5);
@@ -2786,13 +2788,15 @@ function betRequest({ url, body, retryParams = [], retryDelay = 1000 }) {
 			};
 
 			if (game in gameFunctions) gameFunctions[game]();
-					
+			}		
 					
                 }, 2000);
             } else {
                 setTimeout(() => {
                     //console.log("betrequest");
-					betRequest({ url, body, retryParams, retryDelay });
+					if (running) {
+						betRequest({ url, body, retryParams, retryDelay });
+					}
                 }, 2000);
             }
         }
