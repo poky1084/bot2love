@@ -1321,7 +1321,7 @@ function initializeCodeMirror() {
         mode: 'javascript',
         theme: 'darcula',
         lineWrapping: true,
-        scrollbarStyle: 'null'
+        scrollbarStyle: 'native'
     });
 
     htmlEditor2.on("change", function (e) {
