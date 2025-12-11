@@ -1215,7 +1215,7 @@ var betidentifier = "identity01"
 var betlist = []
 var finished_round = false
 var mirror = window.location.host
-
+var statuscode = false;
 
 
 const BLACKJACK_STAND = "stand";
@@ -2721,6 +2721,7 @@ function outbals(json, newbal){
 	//document.getElementById("botMenuCoin").options[indexMatchingText(localStorage.getItem("currenc"))].selected = 'selected';
 }
 function betRequest({ url, body, retryParams = [], retryDelay = 1000 }) {
+
     fetch(`https://${mirror}/${url}`, {
         method: 'POST',
         body: JSON.stringify(body),
@@ -2729,15 +2730,71 @@ function betRequest({ url, body, retryParams = [], retryDelay = 1000 }) {
             'x-access-token': tokenapi
         }
     })
-    .then(res => res.json())
+    .then(res => {
+        if (!res.ok) {
+            // Manually throw an object with the status code
+            throw { status: res.status };
+        }
+        return res.json();
+    })
     .then(json => data(json))
-    .catch(() => {
+    .catch(err => {
         if (running) {
-            setTimeout(() => {
-                if (running) {
-                    betRequest({ url, body, retryParams, retryDelay });
-                }
-            }, retryDelay);
+           // console.log("Caught error status:", err.status);
+
+            if (err.status === 403) {
+                setTimeout(() => {
+                    console.log("error status 403");
+					
+			runBet = (fn, args = []) => {
+				if (fastmode) {
+					setTimeout(() => fn(...args), 5);
+					setTimeout(() => fn(...args), 50);
+				} else {
+					fn(...args);
+				}
+			};
+
+			gameFunctions = {
+				bars: 		 () => runBet(barsBet, [nextbet, difficulty, tiles]),
+				hilo:        () => runBet(hiloBet, [nextbet, startcard]),
+				bluesamurai: () => runBet(samuraiBet, [nextbet]),
+				darts:       () => runBet(dartsBet, [nextbet, difficulty]),
+				tomeoflife:  () => runBet(tomeBet, [nextbet, lines]),
+				scarabspin:  () => runBet(scarabBet, [nextbet, lines]),
+				diamonds:    () => runBet(diamondBet, [nextbet]),
+				cases:       () => runBet(caseBet, [nextbet, difficulty]),
+				videopoker:  () => runBet(videopokerBet, [nextbet]),
+				rps:         () => runBet(rockpaperBet, [nextbet, guesses]),
+				flip:        () => runBet(flipBet, [nextbet, guesses]),
+				snakes:      () => runBet(snakesBet, [nextbet, difficulty, rolls]),
+				pump:        () => runBet(pumpBet, [nextbet, pumps, difficulty]),
+				baccarat:    () => runBet(baccaratbet, [tie, player, banker]),
+				dragontower: () => runBet(dragontowerBet, [nextbet, difficulty, eggs]),
+				roulette:    () => runBet(roulettebet, [chips]),
+				wheel:       () => runBet(wheelbet, [nextbet, segments, risk]),
+				plinko:      () => runBet(plinkobet, [nextbet, rows, risk]),
+				mines:       () => runBet(minesbet, [nextbet, fields, mines]),
+				keno:        () => runBet(kenobet, [nextbet, numbers, risk]),
+				dice:        () => runBet(DiceBet, [nextbet, chance, bethigh]),
+				limbo:       () => runBet(LimboBet, [nextbet, target]),
+				packs:       () => runBet(packsBet, [nextbet]),
+				blackjack:	 () => runBet(blackjackBet, [nextbet]),
+				chicken: 	 () => runBet(chickenBet, [nextbet, difficulty, steps]),
+				tarot: 	 	 () => runBet(tarotBet, [nextbet, difficulty]),
+				primedice:   () => runBet(PrimeBet, [nextbet, target1, target2, target3, target4, condition])
+			};
+
+			if (game in gameFunctions) gameFunctions[game]();
+					
+					
+                }, 2000);
+            } else {
+                setTimeout(() => {
+                    //console.log("betrequest");
+					betRequest({ url, body, retryParams, retryDelay });
+                }, 2000);
+            }
         }
     });
 }
@@ -2899,7 +2956,7 @@ function handleLossRoundCard(betData) {
 startcard = {rank:"A", suit: "C"}
 
 function data(json){
-
+	
 		if(json.errors != null){
 			if(!json.errors[0].errorType.includes("parallelCasinoBet")){
 			log(json.errors[0].errorType + ". " +json.errors[0].message )
@@ -3608,8 +3665,10 @@ function start(){
 		setTimeout(htmlEditor2.getValue() + `
 		
 		localStorage.setItem("jscode", htmlEditor2.getValue());
-;
+
 			userBalances(true);
+		
+			
 			//started_bal = balance;
 
 			if (game === undefined) game = "dice";
